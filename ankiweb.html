@@ -1,0 +1,23 @@
+This add-on tries to remove all line breaks from a field or a selection to make copy/pasting from PDF files less cumbersome. 
+This add-on is an extended modification of <a href="https://ankiweb.net/shared/info/1290231794" rel="nofollow">RemoveLinebreak</a>) (which has been unchanged for over three years and looks abandoned).
+This add-on offers some configuration options (like the shortcut).
+
+<b>changes</b>
+- if text is selected, only the selection is affected.
+- can be called from context menu
+- you can undo the action:
+    - if you had text selected use Ctrl+Z
+    - if the whole field was affected: You need to hold down the shift key and press the button of this add-on. There's no undo shortcut.
+- tries to preserve double line breaks
+- the function to batch process from the browser was removed.
+- limitation: if you have a selection its formatting is removed
+- the add-on tries to remove "-" which are at the end of the line. A crude algorithm is used that might remove too much or too little. You can disable this in the settings.
+
+<b>Problems, Bugs, Errors, Improvements</b>
+There's a good chance that you'll find bugs. If you find one or have a bug fix or improvement you can tell me on  <a href="https://github.com/ijgnd/anki21__remove_linebreaks__do_word_wrap" rel="nofollow">github</a>. I made this for me and I just need an add-on that mostly works. If you 
+want an add-on that works in all cases don't use this add-on. 
+
+<b>other authors</b>
+- 2016 Remco32
+- 2014 Jeff Baitis
+- 2017 glutanimate (the undo function for the field editing button, taken from <a href="https://github.com/glutanimate/html-cleaner" rel="nofollow">html-cleaner</a>)
