@@ -18,7 +18,10 @@ from aqt.editor import Editor
 from aqt import mw
 # from aqt.utils import showInfo
 # from aqt.browser import Browser
-from aqt.qt import *
+from aqt.qt import (
+    QKeySequence,
+    Qt,
+)
 
 
 def gc(arg, fail=False):
