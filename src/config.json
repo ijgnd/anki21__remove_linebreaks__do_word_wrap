@@ -1,5 +1,4 @@
 {
     "shortcut":"Ctrl+Alt+0",
-    "show_in_context_menu":true,
-    "try_to_remove_-_from_line_ending":true
+    "show_in_context_menu":true
 } 

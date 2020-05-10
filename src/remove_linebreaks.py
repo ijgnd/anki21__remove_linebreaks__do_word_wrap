@@ -14,8 +14,9 @@ from bs4 import BeautifulSoup
 from anki.hooks import addHook, wrap
 from anki.utils import json
 from anki.lang import _
-from aqt.editor import Editor
+import aqt
 from aqt import mw
+from aqt.editor import Editor
 # from aqt.utils import showInfo
 # from aqt.browser import Browser
 from aqt.qt import (
@@ -34,33 +35,38 @@ def gc(arg, fail=False):
 rarestring = '⁂⸗┴▓⍗➉'
 
 
-def removeLinebreaks(text):
-    # soup = BeautifulSoup(str,"html.parser")
-    # for e in soup.findAll('br'):
-    #     e.extract()
-    # return soup.prettify()
-
-    #text = re.sub(r'<div>\s.*?<br>','<br><br>', text)
-    text = re.sub(r'<div><br>','<br><br>', text)
-    text = text.replace('<br><br>', rarestring)       
-    text = text.replace('<div>', '')
-    text = text.replace('</div>', ' ')
-    if gc('try_to_remove_-_from_line_ending'):
-        text = text.replace('-<br>', '')
-        text = text.replace('-<br />', '')
-        text = text.replace('-<br/>', '')
-    text = text.replace('<br>', ' ')
-    text = text.replace('<br />', ' ')
-    text = text.replace('<br/>', ' ')
-    text = text.replace(rarestring, '<br><br>')
-    return text
+jsfunc_remove_breaks = """
+<script>
+var addon_remove_linbreaks_rarestring = '⁂⸗┴▓⍗➉';
+var regex_addon_remove_linbreaks_rarestring = new RegExp(addon_remove_linbreaks_rarestring, "g");
+function remove_breaks() {
+    var sel = window.getSelection();
+    var r = sel.getRangeAt(0);
+    var content = r.cloneContents();
+    var temp_rb_tag = document.createElement("span");
+    temp_rb_tag.appendChild(content);
+    temp_rb_tag.innerHTML = temp_rb_tag.innerHTML
+                        .replace(/<div><br>/g, '<br><br>')
+                        .replace(/<br><br>/g, addon_remove_linbreaks_rarestring)
+                        .replace(/<div>/g, '<span>')
+                        .replace(/<\/div>/g, '</span>')
+                        .replace(/-<br>/g, '')
+                        .replace(/-<br \/>/g, '')
+                        .replace(/-<br\/>/g, '')
+                        .replace(/<br>/g, ' ')
+                        .replace(/<br \/>/g, ' ')
+                        .replace(/<br\/>/g, ' ')
+                        .replace(regex_addon_remove_linbreaks_rarestring, '<br><br>');
+    document.execCommand('insertHTML', false, temp_rb_tag.innerHTML);
+    saveField('key');
+}
+</script>
+"""
+aqt.editor._html = jsfunc_remove_breaks + aqt.editor._html
 
 
 def process_selection(editor, selection):
-    #selection = selection.replace('\n',rarestring).replace('\r',rarestring)  # doesn't work
-    selection = selection.replace('-\n','').replace('-\n','')
-    fmt = removeLinebreaks(selection)
-    editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))  
+    editor.web.eval("remove_breaks();")
 
 
 def linebreakhelper(editor):
@@ -74,8 +80,8 @@ def cleanLinebreaks(editor):
     if selection:
         process_selection(editor, selection)
     else:
-        editor.web.evalWithCallback("document.execCommand('selectAll');", lambda _, e=editor: linebreakhelper(e))
-Editor.cleanLinebreaks = cleanLinebreaks
+        jscmd = "document.execCommand('selectAll');"
+        editor.web.evalWithCallback(jscmd, lambda _, e=editor: linebreakhelper(e))
 
 
 def keystr(k):
@@ -94,7 +100,7 @@ def setupEditorButtonsFilter(buttons, editor):
     b = editor.addButton(
         icon=os.path.join(icons_dir, 'linebreak.png'),
         cmd="lb", 
-        func=cleanLinebreaks,
+        func=lambda e=editor: cleanLinebreaks(e),
         tip=f"Remove Linebreaks {cutfmt}",
         keys=gc('shortcut')
     )
