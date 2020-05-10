@@ -99,11 +99,19 @@ def keystr(k):
 def setupEditorButtonsFilter(buttons, editor):
     addon_path = os.path.dirname(__file__)
     icons_dir = os.path.join(addon_path, 'icons')
+    cut = gc('shortcut')
+    if cut:
+        cutfmt = f"({keystr(cut)})"
+    else:
+        cutfmt = ""
+    tiptext = (f"Remove Linebreaks {cutfmt}\nAbout Undo:\n- If you had text selected undo with the "
+                "regular undo shortcut Ctrl/Cmd+Z;\n- If you removed line breaks from the whole field "
+                "click this button again while holding 'shift'.")
     b = editor.addButton(
         icon=os.path.join(icons_dir, 'linebreak.png'),
         cmd="lb", 
         func=cleanLinebreaks,
-        tip="Remove Linebreaks ({})".format(keystr(gc('shortcut'))),
+        tip=tiptext,
         keys=gc('shortcut')
     )
     buttons.append(b)
