@@ -6,6 +6,8 @@
     # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
+# TODO incorporate https://github.com/glutanimate/anki-addons-misc/blob/master/src/editor_replace_linebreaks/editor_replace_linebreaks.py
+
 
 import os, re
 from bs4 import BeautifulSoup
