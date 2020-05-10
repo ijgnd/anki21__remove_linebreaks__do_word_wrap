@@ -4,7 +4,7 @@
     # To make copy/pasting from PDF files less cumbersome
     # Edited version made by Remco32
     # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-    # Version: 1.0, 2016/03/13
+
 
 
 import os, re
@@ -56,21 +56,23 @@ def removeLinebreaks(text):
     return text
 
 
+def process_selection(editor, selection):
+    #selection = selection.replace('\n',rarestring).replace('\r',rarestring)  # doesn't work
+    selection = selection.replace('-\n','').replace('-\n','')
+    fmt = removeLinebreaks(selection)
+    editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))  
+
+
 def linebreakhelper(editor):
     selection = editor.web.selectedText()
     if selection:
-        selection = selection.replace('-\n','').replace('-\n','')
-        fmt = removeLinebreaks(selection)
-        editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))  
+        process_selection(editor, selection)
 
 
 def cleanLinebreaks(editor):
     selection = editor.web.selectedText()
     if selection:
-        #selection = selection.replace('\n',rarestring).replace('\r',rarestring)  # doesn't work
-        selection = selection.replace('-\n','').replace('-\n','')
-        fmt = removeLinebreaks(selection)
-        editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))   
+        process_selection(editor, selection)
     else:
         editor.web.evalWithCallback("document.execCommand('selectAll');", lambda _, e=editor: linebreakhelper(e))
 Editor.cleanLinebreaks = cleanLinebreaks
