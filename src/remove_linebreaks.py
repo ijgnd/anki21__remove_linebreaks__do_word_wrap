@@ -32,6 +32,8 @@ def gc(arg, fail=False):
 
 
 rarestring = '⁂⸗┴▓⍗➉'
+
+
 def removeLinebreaks(text):
     # soup = BeautifulSoup(str,"html.parser")
     # for e in soup.findAll('br'):
@@ -40,7 +42,7 @@ def removeLinebreaks(text):
 
     #text = re.sub(r'<div>\s.*?<br>','<br><br>', text)
     text = re.sub(r'<div><br>','<br><br>', text)
-    text = text.replace('<br><br>',rarestring)       
+    text = text.replace('<br><br>', rarestring)       
     text = text.replace('<div>', '')
     text = text.replace('</div>', ' ')
     if gc('try_to_remove_-_from_line_ending'):
@@ -54,32 +56,15 @@ def removeLinebreaks(text):
     return text
 
 
-def cleanLinebreaksField(editor, field):
-    text = editor.note.fields[field]
-    editor._myfieldUndo = (field, text)
-    fmt = removeLinebreaks(text)
-    editor.note.fields[field] = fmt 
-    editor.saveTags()
-    editor.note.flush()
-    editor.loadNote(focusTo=field)
-
-
-def myOnFieldUndo(editor):
-    if not hasattr(editor, "_myfieldUndo") or not editor._myfieldUndo:
-        return
-    n, html = editor._myfieldUndo
-    editor.note.fields[n] = html
-    editor.loadNote()
-    editor.web.setFocus()
-    editor.loadNote(focusTo=n)
+def linebreakhelper(editor):
+    selection = editor.web.selectedText()
+    if selection:
+        selection = selection.replace('-\n','').replace('-\n','')
+        fmt = removeLinebreaks(selection)
+        editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))  
 
 
 def cleanLinebreaks(editor):
-    modifiers = editor.mw.app.queryKeyboardModifiers()
-    shift_and_click = modifiers == Qt.ShiftModifier
-    if shift_and_click:
-        myOnFieldUndo(editor)
-        return
     selection = editor.web.selectedText()
     if selection:
         #selection = selection.replace('\n',rarestring).replace('\r',rarestring)  # doesn't work
@@ -87,14 +72,14 @@ def cleanLinebreaks(editor):
         fmt = removeLinebreaks(selection)
         editor.web.eval("document.execCommand('inserthtml', false, %s);" % json.dumps(fmt))   
     else:
-        field = editor.currentField
-        editor.saveNow(lambda e=editor, f=field: cleanLinebreaksField(e, f))
+        editor.web.evalWithCallback("document.execCommand('selectAll');", lambda _, e=editor: linebreakhelper(e))
 Editor.cleanLinebreaks = cleanLinebreaks
 
 
 def keystr(k):
     key = QKeySequence(k)
     return key.toString(QKeySequence.NativeText)
+
 
 def setupEditorButtonsFilter(buttons, editor):
     addon_path = os.path.dirname(__file__)
@@ -104,14 +89,11 @@ def setupEditorButtonsFilter(buttons, editor):
         cutfmt = f"({keystr(cut)})"
     else:
         cutfmt = ""
-    tiptext = (f"Remove Linebreaks {cutfmt}\nAbout Undo:\n- If you had text selected undo with the "
-                "regular undo shortcut Ctrl/Cmd+Z;\n- If you removed line breaks from the whole field "
-                "click this button again while holding 'shift'.")
     b = editor.addButton(
         icon=os.path.join(icons_dir, 'linebreak.png'),
         cmd="lb", 
         func=cleanLinebreaks,
-        tip=tiptext,
+        tip=f"Remove Linebreaks {cutfmt}",
         keys=gc('shortcut')
     )
     buttons.append(b)
