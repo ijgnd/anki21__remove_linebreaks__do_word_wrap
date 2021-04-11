@@ -9,9 +9,10 @@
 # TODO incorporate https://github.com/glutanimate/anki-addons-misc/blob/master/src/editor_replace_linebreaks/editor_replace_linebreaks.py
 
 import json
-import os, re
-from bs4 import BeautifulSoup
+import os
+import re
 
+from bs4 import BeautifulSoup
 
 from anki.hooks import addHook, wrap
 from anki.lang import _
