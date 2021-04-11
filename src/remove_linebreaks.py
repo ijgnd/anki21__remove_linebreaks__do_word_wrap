@@ -15,7 +15,6 @@ import re
 from bs4 import BeautifulSoup
 
 from anki.hooks import addHook, wrap
-from anki.lang import _
 import aqt
 from aqt import mw
 from aqt.editor import Editor
@@ -112,7 +111,7 @@ addHook("setupEditorButtons", setupEditorButtonsFilter)
 
 
 def add_to_context(view, menu):
-    a = menu.addAction(_("Remove Linebreak"))
+    a = menu.addAction("Remove Linebreak")
     a.triggered.connect(lambda _,e=view.editor: cleanLinebreaks(e))
 
 
