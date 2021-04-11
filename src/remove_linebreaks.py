@@ -15,6 +15,8 @@ import re
 from bs4 import BeautifulSoup
 
 from anki.hooks import addHook, wrap
+from anki.utils import pointVersion
+
 import aqt
 from aqt import mw
 from aqt.editor import Editor
@@ -34,14 +36,14 @@ def gc(arg, fail=False):
 
 
 rarestring = '⁂⸗┴▓⍗➉'
-
+oldanki = pointVersion() <= 40
 
 jsfunc_remove_breaks = """
 <script>
 var addon_remove_linbreaks_rarestring = '⁂⸗┴▓⍗➉';
 var regex_addon_remove_linbreaks_rarestring = new RegExp(addon_remove_linbreaks_rarestring, "g");
 function remove_breaks() {
-    var sel = window.getSelection();
+    var sel = %(GETSEL)s
     var r = sel.getRangeAt(0);
     var content = r.cloneContents();
     var temp_rb_tag = document.createElement("span");
@@ -59,10 +61,13 @@ function remove_breaks() {
                         .replace(/<br\/>/g, ' ')
                         .replace(regex_addon_remove_linbreaks_rarestring, '<br><br>');
     document.execCommand('insertHTML', false, temp_rb_tag.innerHTML);
-    saveField('key');
+    %(DOSAVE)s;
 }
 </script>
-"""
+""" % { 
+"GETSEL": "window.getSelection();" if oldanki else "getCurrentField().shadowRoot.getSelection();",
+"DOSAVE": "saveField('key');" if oldanki else "saveNow(true);"
+}
 aqt.editor._html = jsfunc_remove_breaks + aqt.editor._html
 
 
