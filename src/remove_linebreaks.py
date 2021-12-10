@@ -6,7 +6,12 @@
     # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
-# TODO incorporate https://github.com/glutanimate/anki-addons-misc/blob/master/src/editor_replace_linebreaks/editor_replace_linebreaks.py
+# there's also an unpublished add-on from Glutanimate at
+# https://github.com/glutanimate/anki-addons-misc/blob/master/src/editor_replace_linebreaks/editor_replace_linebreaks.py
+# I don't think that it gets better results.
+
+# TODO: add: spellchecking/autocorrect
+
 
 import json
 import os
