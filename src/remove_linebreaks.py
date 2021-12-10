@@ -55,6 +55,7 @@ function remove_breaks() {
                         .replace(/<\/div>/g, '</span>')
                         .replace(/-<br>/g, '')
                         .replace(/-<br \/>/g, '')
+                        .replace(/&shy;<br>/g, '')
                         .replace(/-<br\/>/g, '')
                         .replace(/<br>/g, ' ')
                         .replace(/<br \/>/g, ' ')
