@@ -67,7 +67,7 @@ def get_selection_function():
     elif anki_21_version < 50:
         return "getCurrentField().shadowRoot.getSelection();",
     else:
-        return ""
+        return "document.activeElement.shadowRoot.getSelection();"
 
 
 def get_save_function():
