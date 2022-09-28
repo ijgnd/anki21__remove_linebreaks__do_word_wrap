@@ -11,28 +11,27 @@
 # I don't think that it gets better results.
 
 from .anki_version_detection import anki_point_version
+from .config import gc
 
-import json
 import os
-import re
-
-from bs4 import BeautifulSoup
-
-from anki.hooks import addHook, wrap
 
 import aqt
 from aqt import mw
 from aqt.editor import Editor
+
 if anki_point_version >= 50:
     from aqt.gui_hooks import (
+        editor_did_init_buttons,
+        editor_will_show_context_menu,
         webview_will_set_content,
     )
+else:
+    from anki.hooks import addHook
+
 from aqt.qt import (
     QKeySequence,
     Qt,
 )
-
-from .config import gc
 
 
 def get_selection_function():
@@ -123,7 +122,7 @@ def keystr(k):
     return key.toString(QKeySequence.SequenceFormat.NativeText)
 
 
-def setupEditorButtonsFilter(buttons, editor):
+def add_button_to_editor(buttons, editor):
     addon_path = os.path.dirname(__file__)
     icons_dir = os.path.join(addon_path, 'icons')
     cut = gc('shortcut')
@@ -140,13 +139,17 @@ def setupEditorButtonsFilter(buttons, editor):
     )
     buttons.append(b)
     return buttons
-addHook("setupEditorButtons", setupEditorButtonsFilter)
+if anki_point_version <= 49:
+    addHook("setupEditorButtons", add_button_to_editor)
+else:
+    editor_did_init_buttons.append(add_button_to_editor)
 
 
 def add_to_context(view, menu):
     a = menu.addAction("Remove Linebreak")
     a.triggered.connect(lambda _,e=view.editor: remove_linebreaks(e))
-
-
 if gc("show_in_context_menu", True):
-    addHook("EditorWebView.contextMenuEvent", add_to_context)
+    if anki_point_version <= 49:
+        addHook("EditorWebView.contextMenuEvent", add_to_context)
+    else:
+        editor_will_show_context_menu.append(add_to_context)
